@@ -86,9 +86,6 @@ static int cmd_call(struct cliant_ctx *ctx, int argc, char **argv) {
 	}
 
 	fprintf(stderr, "CLIant: No command corresponds to %s.\r\n", argv[0]);
-	for (int i = 0; i < strlen(argv[0]); i++)
-		printf("%02x ", argv[0][i]);
-	printf("\r\n");
 	return -1;
 }
 
