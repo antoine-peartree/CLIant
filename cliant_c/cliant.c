@@ -71,11 +71,6 @@ static void print_list(struct cliant_ctx *ctx)
  * Use argv[0] to find the corresponding cmd into the registered cmds list.
  */
 static int cmd_call(struct cliant_ctx *ctx, int argc, char **argv) {
-	if (!ctx->nb_registered_cmds) {
-		fprintf(stderr, "CLIant: No command registered, aborting cmd call.\r\n");
-		return -1;
-	}
-
 	for (int i = 0; i < ctx->nb_registered_cmds; i++) {
 		if (!strcmp(ctx->cmds[i].label, argv[0])) {
 			return ctx->cmds[i].func(argc, argv);
@@ -87,6 +82,11 @@ static int cmd_call(struct cliant_ctx *ctx, int argc, char **argv) {
 }
 
 int cliant_cmd_parse(struct cliant_ctx *ctx, char *cmd) {
+	if (!ctx->nb_registered_cmds) {
+		fprintf(stderr, "CLIant: No command registered, call aborted.\r\n");
+		return -1;
+	}
+
 	int res;
 	int argc = 1;
 	char *argv[128];
