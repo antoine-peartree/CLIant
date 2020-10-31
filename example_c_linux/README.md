@@ -2,7 +2,7 @@
 
 Build the example with
 ```shell
-> make
+make
 ```
 
 Then run the example
@@ -17,7 +17,7 @@ You can now write command into the fifo created at
 
 Example :
 ```shell
-echo ping
+echo "ping" > /tmp/cliant_fifo
 ```
 Should trigger "ping" output from your program.
 
