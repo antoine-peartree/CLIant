@@ -24,7 +24,7 @@
  */
 struct cliant_cmd {
 	char *label;
-	void *func;
+    int (*func)(int argc, char **argv);
 	char *options;
 	char *description;
 };

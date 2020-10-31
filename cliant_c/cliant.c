@@ -78,10 +78,7 @@ static int cmd_call(struct cliant_ctx *ctx, int argc, char **argv) {
 
 	for (int i = 0; i < ctx->nb_registered_cmds; i++) {
 		if (!strcmp(ctx->cmds[i].label, argv[0])) {
-			typedef int func(int argc, char **argv);
-			func *f = ctx->cmds[i].func;
-			f(argc, argv);
-			return 0;
+			return ctx->cmds[i].func(argc, argv);
 		}
 	}
 
