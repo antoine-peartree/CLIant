@@ -1,3 +1,4 @@
 */.*
 example_c_linux/build
 example_cpp_linux/build
+example_c_stm32L5/build
