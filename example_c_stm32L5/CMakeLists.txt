@@ -11,6 +11,7 @@ set(CMAKE_C_EXTENSIONS ON)
 set(STM32CUBEIDE_GENERATED_FILES
         Core/Src/stm32l5xx_hal_msp.c
         Core/Src/stm32l5xx_it.c
+# Syscalls replaced by retarget.c (allow printf into UART)
 #Core/Src/syscalls.c
         Core/Src/sysmem.c
         Core/Src/system_stm32l5xx.c
@@ -40,10 +41,10 @@ set(STM32CUBEIDE_GENERATED_FILES
     )
 
 set(USER_SRC_FILES
-        Core/Src/cliant.c
-        Core/Src/leds.c
-        Core/Src/main.c
-        Core/Src/retarget.c
+        main.c
+        User/CLIant/Src/cliant.c
+        User/Drivers/Src/leds.c
+        User/Core/Src/retarget.c
    )
 
 set(EXECUTABLE ${PROJECT_NAME}.out)
@@ -60,6 +61,9 @@ target_include_directories(${EXECUTABLE} PRIVATE
     Drivers/CMSIS/Include
     Drivers/CMSIS/Device/ST/STM32L5xx/Include
     Drivers/STM32L5xx_HAL_Driver/Inc
+    User/Core/Inc
+    User/Drivers/Inc
+    User/CLIant/Inc
     )
 
 target_compile_options(${EXECUTABLE} PRIVATE
@@ -75,7 +79,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
         )
 
 target_link_options(${EXECUTABLE} PRIVATE
-        -T${CMAKE_SOURCE_DIR}/STM32L552ZETXQ_FLASH.ld
+        -T${CMAKE_SOURCE_DIR}/ld_config/STM32L552ZETXQ_FLASH.ld
         -mcpu=cortex-m33
         -mthumb
         -mfpu=fpv5-sp-d16

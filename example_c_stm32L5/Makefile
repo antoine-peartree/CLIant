@@ -6,7 +6,9 @@ BOARD_MOUNT_POINT=/media/antoine/NODE_L552ZE
 TOOLCHAIN_FILE=arm-none-eabi-gcc.cmake
 TOOLCHAIN_ARG=-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
 
-all: clean mkdir_build cmake_config cmake_build copy
+all: cleanbuild copy
+
+cleanbuild: clean mkdir_build cmake_config cmake_build
 
 buildcp: cmake_build copy
 
