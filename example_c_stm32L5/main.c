@@ -156,17 +156,6 @@ int main(void)
   char rx_buffer[CMD_MAX_SIZE] = {0}, cmd[CMD_MAX_SIZE] = {0};
   HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, sizeof(rx_buffer));
 
-  /* CODE SNIPPET FOR QUICKLY CHECKING LED/UART */
-  /*
-  int val = 0;
-  while (1) {
-	  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, val);
-	  val = (val + 1) % 2;
-	  printf("test\r\n");
-	  HAL_Delay(500);
-  }
-   */
-
   while (1)
   {
     fflush(stdout);
