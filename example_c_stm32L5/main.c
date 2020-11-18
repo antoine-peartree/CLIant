@@ -26,6 +26,7 @@
 #include "main.h"
 #include "retarget.h"
 
+#define RX_CMD_MAX_SIZE 1024
 #define CMD_MAX_SIZE 256
 
 RTC_HandleTypeDef hrtc;
@@ -125,6 +126,30 @@ static int cliant_led(int argc, char **argv)
 	return 0;
 }
 
+static void process_user_cmd(struct cliant_ctx *cliant_ctx, char *rx_buffer)
+{
+  HAL_UART_DMAStop(&huart2);
+  __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_IDLE);
+
+  size_t pos;
+  for (pos = 0; pos < RX_CMD_MAX_SIZE; pos ++)
+    if (rx_buffer[pos] == '\n')
+      break;
+
+  if (pos == RX_CMD_MAX_SIZE) {
+    HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, RX_CMD_MAX_SIZE);
+    return;
+  }
+
+  char cmd[CMD_MAX_SIZE] = {0};
+  memcpy(cmd, rx_buffer, pos);
+  memset(rx_buffer, 0, RX_CMD_MAX_SIZE);
+  HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, RX_CMD_MAX_SIZE);
+
+  cliant_cmd_parse(cliant_ctx, cmd);
+  memset(cmd, 0, sizeof(cmd));
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -153,44 +178,17 @@ int main(void)
 	  	  printf("CLIant registration failed\r\n");
 
   /* Init UART buffer */
-  char rx_buffer[CMD_MAX_SIZE] = {0}, cmd[CMD_MAX_SIZE] = {0};
+  char rx_buffer[RX_CMD_MAX_SIZE] = {0};
   HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, sizeof(rx_buffer));
+  __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_IDLE);
 
   while (1)
   {
     fflush(stdout);
     fflush(stderr);
-
-	/* Skip if the UART buffer is empty yet */
-	size_t cnt = __HAL_DMA_GET_COUNTER(huart2.hdmarx);
-	if (!(sizeof(rx_buffer) - cnt))
-			continue;
-
-	/* End-character command is detected into the buffer*/
-	if (strstr(rx_buffer, "\n") != NULL) {
-		HAL_UART_DMAStop(&huart2);
-
-		size_t pos;
-		for (pos = 0; pos < sizeof(rx_buffer); pos ++)
-			if (rx_buffer[pos] == '\n')
-				break;
-
-		memcpy(cmd, rx_buffer, pos);
-		memset(rx_buffer, 0, sizeof(rx_buffer));
-		HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, sizeof(rx_buffer));
-
-		cliant_cmd_parse(&cliant_ctx, cmd);
-		memset(cmd, 0, sizeof(cmd));
-		continue;
-	}
-
-	if (!cnt) {
-		printf("Buffer is full without complete command. Clearing\r\n");
-		HAL_UART_DMAStop(&huart2);
-		memset(rx_buffer, 0, sizeof(rx_buffer));
-		HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, sizeof(rx_buffer));
-		continue;
-	}
+    if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE))
+      process_user_cmd(&cliant_ctx, rx_buffer);
+    }
   }
   cliant_clean_ctx(&cliant_ctx);
 }
