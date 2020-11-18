@@ -42,7 +42,7 @@ set(STM32CUBEIDE_GENERATED_FILES
 
 set(USER_SRC_FILES
         main.c
-        User/CLIant/Src/cliant.c
+        ../cliant_c/cliant.c
         User/Drivers/Src/leds.c
         User/Core/Src/retarget.c
    )
@@ -63,7 +63,7 @@ target_include_directories(${EXECUTABLE} PRIVATE
     Drivers/STM32L5xx_HAL_Driver/Inc
     User/Core/Inc
     User/Drivers/Inc
-    User/CLIant/Inc
+    ../cliant_c
     )
 
 target_compile_options(${EXECUTABLE} PRIVATE
