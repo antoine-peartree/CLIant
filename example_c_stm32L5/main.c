@@ -188,6 +188,14 @@ int main(void)
     fflush(stderr);
     if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE))
       process_user_cmd(&cliant_ctx, rx_buffer);
+
+    // If buffer is full without containing commands, reset rx buffer
+    if (!__HAL_DMA_GET_COUNTER(huart2.hdmarx)) {
+      printf("RX buffer full without receiving commands\r\n");
+      HAL_UART_DMAStop(&huart2);
+      __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_IDLE);
+      memset(rx_buffer, 0, sizeof(rx_buffer));
+      HAL_UART_Receive_DMA(&huart2, (uint8_t *) rx_buffer, sizeof(rx_buffer));
     }
   }
   cliant_clean_ctx(&cliant_ctx);
